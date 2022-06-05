@@ -41,7 +41,7 @@ post_route.post(
   ],
   user_permission(["admin", "auther"]),
   async (req, res) => {
-    const imagePath = path.join(__dirname, "/images");
+    const imagePath = path.join(__dirname, "/public/images");
     const fileUpload = new Resize(imagePath);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -72,7 +72,7 @@ post_route.put(
   ],
   user_permission(["admin", "auther"]),
   async (req, res) => {
-    const imagePath = path.join(__dirname, "/images");
+    const imagePath = path.join(__dirname, "/public/images");
     const fileUpload = new Resize(imagePath);
     const id = req.body.id;
     const errors = validationResult(req);
