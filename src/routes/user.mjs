@@ -1,7 +1,7 @@
 import express from "express";
 import { check, validationResult } from "express-validator";
 import { User } from "../classes/User.mjs";
-import { user_permission } from "../Permission.mjs";
+import { user_permission } from "../middlewares/Permission.mjs";
 
 const user = new User();
 

@@ -6,6 +6,7 @@ import session from "cookie-session";
 import { login_route } from "./routes/User.mjs";
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     resave: true,
@@ -28,10 +29,6 @@ function Authorize(req, res, next) {
       console.log(err);
       return res.status(403).json();
     }
-    /*  if (user.type != "admin") {
-        res.json({message : "not allow this to you !!"});
-        return;
-    } */
     console.log(user);
     req.user = user;
     next();

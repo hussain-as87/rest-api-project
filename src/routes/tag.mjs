@@ -1,7 +1,7 @@
 import express from "express";
 import { Tag } from "../classes/Tag.mjs";
 import { validationResult, check } from "express-validator";
-import { user_permission } from "../Permission.mjs";
+import { user_permission } from "../middlewares/Permission.mjs";
 
 const tag = new Tag();
 

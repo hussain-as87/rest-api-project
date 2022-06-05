@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../connection.mjs";
 import jwt from "jsonwebtoken";
 import { _app } from "../../config.mjs";
+import { sequelize } from "../middlewares/connection.mjs";
 
 export class User {
   constructor() {
@@ -48,7 +48,7 @@ export class User {
     req.session.type = user_type;
     const token = jwt.sign({ id: user_id, type: user_type }, _app.secret_key);
     res.json({
-      token,
+      token
     });
   }
 

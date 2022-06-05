@@ -1,7 +1,7 @@
 import express from "express";
 import { Comment } from "../classes/Commet.mjs";
 import { validationResult, check } from "express-validator";
-import { user_permission } from "../Permission.mjs";
+import { user_permission } from "../middlewares/Permission.mjs";
 
 const comment = new Comment();
 

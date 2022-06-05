@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../connection.mjs';
+import { sequelize } from "../middlewares/connection.mjs";
 
 
 export class Tag {

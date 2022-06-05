@@ -1,9 +1,10 @@
 import express from "express";
 import { Post } from "../classes/Post.mjs";
 import { validationResult, check } from "express-validator";
-import { user_permission } from "../Permission.mjs";
-import { v4 as uuidv4 } from "uuid";
-
+import { user_permission } from "../middlewares/Permission.mjs";
+import { Resize } from "../middlewares/UploadFile.mjs";
+import path from "path";
+const __dirname = "D:\\node project\\course\\final-project-2\\src\\";
 const posts = new Post();
 
 export const post_route = express.Router();
@@ -33,11 +34,15 @@ post_route.post(
   [
     check("title").notEmpty().isString(),
     check("content").notEmpty().isString(),
-    check("image").notEmpty(),
+    check("image")
+      .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
+      .notEmpty(),
     check("auther").notEmpty(),
   ],
   user_permission(["admin", "auther"]),
   async (req, res) => {
+    const imagePath = path.join(__dirname, "/images");
+    const fileUpload = new Resize(imagePath);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ error: errors.array() });
@@ -46,7 +51,8 @@ post_route.post(
     const post = req.body;
     post.id = Math.ceil(Math.random(200) * 1000000000);
     post.publish_date = new Date();
-    post.auther = req.body.auther;
+    const filename = await fileUpload.save(req.body.image);
+    post.image = filename;
 
     res.json(await posts.create(post));
   }
@@ -59,11 +65,15 @@ post_route.put(
     check("id").notEmpty(),
     check("title").notEmpty().isString(),
     check("content").notEmpty().isString(),
-    check("image").notEmpty(),
+    check("image")
+      .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
+      .notEmpty(),
     check("auther").notEmpty(),
   ],
   user_permission(["admin", "auther"]),
   async (req, res) => {
+    const imagePath = path.join(__dirname, "/images");
+    const fileUpload = new Resize(imagePath);
     const id = req.body.id;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -73,7 +83,9 @@ post_route.put(
     const post = req.body;
     post.id = id;
     post.publish_date = new Date();
-    res.json(await posts.update(id,post));
+    const filename = await fileUpload.save(req.body.image);
+    post.image = filename;
+    res.json(await posts.update(id, post));
   }
 );
 
@@ -84,7 +96,7 @@ post_route.delete(
   async (req, res) => {
     const id = req.body.id;
     if (!id) {
-      res.status(400).json({message:"this post can not be found !!"})
+      res.status(400).json({ message: "this post can not be found !!" });
     }
     res.json(await posts.destroy(id));
   }

@@ -1,6 +1,6 @@
 import { DataTypes, where } from "sequelize";
-import { sequelize } from "../connection.mjs";
-import { check_user, user_permission } from "../Permission.mjs";
+import { sequelize } from "../middlewares/connection.mjs";
+import { check_user, user_permission } from "../middlewares/Permission.mjs";
 
 export class Post {
   constructor() {

@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Op } from 'sequelize';
-import { _app } from '../config.mjs';
+import { _app } from '../../config.mjs';
+
 
 export const sequelize = new Sequelize(
     _app.db_name,
