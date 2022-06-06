@@ -1,7 +1,9 @@
 export let check_user = null ;
+export let check_user_id = null ;
 export const user_permission = (per) => {
   return (req, res, next) => {
      check_user = req.session.type;
+     check_user_id = req.session.userId;
     if (per.includes(check_user)) {
       next();
     } else {

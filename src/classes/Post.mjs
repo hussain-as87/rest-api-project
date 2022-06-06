@@ -1,6 +1,6 @@
-import { DataTypes, where } from "sequelize";
+import { DataTypes } from "sequelize";
 import { sequelize } from "../middlewares/connection.mjs";
-import { check_user, user_permission } from "../middlewares/Permission.mjs";
+import { check_user } from "../middlewares/Permission.mjs";
 
 export class Post {
   constructor() {
@@ -12,7 +12,8 @@ export class Post {
         image: DataTypes.TEXT,
         status: DataTypes.ENUM("draft", "published"),
         publish_date: new Date().getDate(),
-        auther: DataTypes.INTEGER,
+        author: DataTypes.INTEGER,
+        tag: DataTypes.INTEGER,
       },
       {
         tableName: "posts",
@@ -21,15 +22,28 @@ export class Post {
     );
   }
 
-  async index() {
+  async index(limit, page, query) {
     try {
-        if (check_user == "admin") {
-          return await this.Post.findAll();
+      let p;
+      if (check_user == "admin") {
+        if (query == undefined) {
+          p = this.Post.findAll();
         } else {
-          return await this.Post.findAll({
-            where: [{ status: "draft" }],
-          });
+          p = sequelize.query(
+            `select * from posts where title like '%${query}%' or content like '%${query}%' `
+          );
         }
+        return page || limit ? await paginate(p, limit, page) : p;
+      } else {
+        if (query == undefined) {
+          p = this.Post.findAll({ where: [{ status: "published" }] });
+        } else {
+          p = sequelize.query(
+            `select * from posts where title like '%${query}%' or content like '%${query}%'`
+          );
+        }
+        return page || limit ? await paginate(p, limit, page) : p;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -64,4 +78,27 @@ export class Post {
       },
     });
   }
+  async tagPost(id) {
+    await this.Post.destroy({
+      where: {
+        id: id,
+      },
+    });
+  }
+  async authorPosts(id) {
+    await this.Post.destroy({
+      where: {
+        auther: id,
+      },
+    });
+  }
+}
+
+//!pagination
+async function paginate(array, page_limit, page_number) {
+  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+  return (await array).slice(
+    (page_number - 1) * page_limit,
+    page_number * page_limit
+  );
 }
