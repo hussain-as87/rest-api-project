@@ -50,7 +50,14 @@ export class Post {
   }
 
   async show(id) {
-    return await this.Post.findByPk(id);
+    const post =  this.Post.findByPk(id);
+    if (!post) {
+      return {message:"not found !!"}
+    }
+    const comments = sequelize.query(
+      `select * from comments where post_id = ${id}`
+    );
+    return await comments;
   }
 
   async create(post) {
@@ -75,20 +82,6 @@ export class Post {
     await this.Post.destroy({
       where: {
         id: id,
-      },
-    });
-  }
-  async tagPost(id) {
-    await this.Post.destroy({
-      where: {
-        id: id,
-      },
-    });
-  }
-  async authorPosts(id) {
-    await this.Post.destroy({
-      where: {
-        auther: id,
       },
     });
   }

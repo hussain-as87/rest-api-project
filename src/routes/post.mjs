@@ -1,7 +1,7 @@
 import express from "express";
 import { Post } from "../classes/Post.mjs";
 import { validationResult, check } from "express-validator";
-import { user_permission } from "../middlewares/Permission.mjs";
+import { check_user_id, user_permission } from "../middlewares/Permission.mjs";
 import { Resize } from "../middlewares/UploadFile.mjs";
 import path from "path";
 const __dirname = "D:\\node project\\course\\final-project-2\\src\\";
@@ -22,12 +22,9 @@ post_route.get(
 );
 
 //!find one
-post_route.get("/:id", async (req, res) => {
+post_route.get("/:id/comments", async (req, res) => {
   const id = req.params.id;
   const p = await data.show(id);
-  if (!p) {
-    return res.status(404).json("Not found !!");
-  }
   res.json(p);
 });
 
@@ -53,6 +50,7 @@ post_route.post(
     }
     const post = req.body;
     post.id = Math.ceil(Math.random(200) * 1000000000);
+    post.author = check_user_id;
     post.publish_date = new Date();
     const filename = await fileUpload.save(req.body.image);
     post.image = filename;
@@ -85,6 +83,7 @@ post_route.put(
     }
     const post = req.body;
     post.id = id;
+    post.author = check_user_id;
     post.publish_date = new Date();
     const filename = await fileUpload.save(req.body.image);
     post.image = filename;
