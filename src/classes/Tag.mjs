@@ -1,55 +1,61 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes } from "sequelize";
 import { sequelize } from "../middlewares/connection.mjs";
 
-
 export class Tag {
-    constructor() {
-        this.Tag = sequelize.define('Tag',
-            {
-                name: DataTypes.STRING
-            },
-            {
-                tableName: 'tags',
-                timestamps: false
-            });
+  constructor() {
+    this.Tag = sequelize.define(
+      "Tag",
+      {
+        name: DataTypes.STRING,
+      },
+      {
+        tableName: "tags",
+        timestamps: false,
+      }
+    );
+  }
+
+  async index() {
+    try {
+      return await this.Tag.findAll();
+    } catch (err) {
+      console.log(err);
     }
+  }
 
-    async index() {
-        try {
-            return await this.Tag.findAll();
-        } catch (err) {
-            console.log(err);
-        }
+  async show(id) {
+    const tag = await this.Tag.findByPk(id);
+    if (!tag) {
+      return "not found !!";
     }
+    const posts = sequelize.query(`select * from posts where tag = ${id}`);
+    return await posts;
+  }
 
-    async show(id) {
-        return await this.Tag.findByPk(id);
-    }
+  async create(tag) {
+    const new_tag = this.Tag.build(tag);
+    await new_tag.save();
 
-    async create(tag) {
-        const new_tag = this.Tag.build(tag);
-        await new_tag.save();
+    return new_tag;
+  }
 
-        return new_tag;
-    }
+  async update(id, tag) {
+    const updated_tag = await this.Tag.findByPk(id);
+    console.log(updated_tag);
+    Object.keys(tag).forEach((k) => {
+      updated_tag[k] = tag[k];
+    });
 
-    async update(id, tag) {
-        const updated_tag = await this.Tag.findByPk(id);
-        console.log(updated_tag);
-        Object.keys(tag).forEach(k => {
-            updated_tag[k] = tag[k];
-        });
+    await updated_tag.save();
 
-        await updated_tag.save();
+    return updated_tag;
+  }
 
-        return updated_tag;
-    }
-
-    async destroy(id) {
-        await this.Tag.destroy({
-            where: {
-                'id': id
-            }
-        });
-    }
+  async destroy(id) {
+    await this.Tag.destroy({
+      where: {
+        id: id,
+      },
+    });
+  }
 }

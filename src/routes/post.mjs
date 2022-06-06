@@ -5,30 +5,33 @@ import { user_permission } from "../middlewares/Permission.mjs";
 import { Resize } from "../middlewares/UploadFile.mjs";
 import path from "path";
 const __dirname = "D:\\node project\\course\\final-project-2\\src\\";
-const posts = new Post();
+const data = new Post();
 
 export const post_route = express.Router();
 
-//!fetch all post
+//!fetch all
 post_route.get(
   "/",
-  user_permission(["admin", "auther", "user"]),
+  user_permission(["admin", "author", "user"]),
   async (req, res) => {
-    res.json(await posts.index());
+    let query = req.query.query;
+    let count = req.query.count;
+    let page = req.query.page;
+    res.json(await data.index(count, page, query));
   }
 );
 
-//!find one post
+//!find one
 post_route.get("/:id", async (req, res) => {
-  const bookId = req.params.id;
-  const p = await posts.getById(bookId);
+  const id = req.params.id;
+  const p = await data.show(id);
   if (!p) {
-    return res.status(404).json("Not found");
+    return res.status(404).json("Not found !!");
   }
   res.json(p);
 });
 
-//!create new post
+//!create
 post_route.post(
   "/",
   [
@@ -37,9 +40,9 @@ post_route.post(
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("auther").notEmpty(),
+    check("author").notEmpty(),
   ],
-  user_permission(["admin", "auther"]),
+  user_permission(["author"]),
   async (req, res) => {
     const imagePath = path.join(__dirname, "/public/images");
     const fileUpload = new Resize(imagePath);
@@ -53,12 +56,12 @@ post_route.post(
     post.publish_date = new Date();
     const filename = await fileUpload.save(req.body.image);
     post.image = filename;
-
-    res.json(await posts.create(post));
+    await data.create(post);
+    res.json({ message: "successfuly created !!" });
   }
 );
 
-//!update the post
+//!update
 post_route.put(
   "/",
   [
@@ -68,9 +71,9 @@ post_route.put(
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("auther").notEmpty(),
+    check("author").notEmpty(),
   ],
-  user_permission(["admin", "auther"]),
+  user_permission(["author"]),
   async (req, res) => {
     const imagePath = path.join(__dirname, "/public/images");
     const fileUpload = new Resize(imagePath);
@@ -85,19 +88,21 @@ post_route.put(
     post.publish_date = new Date();
     const filename = await fileUpload.save(req.body.image);
     post.image = filename;
-    res.json(await posts.update(id, post));
+    await data.update(id, post);
+    res.json({ message: "successfully updated !!" });
   }
 );
 
-//!delete the post
+//!delete
 post_route.delete(
   "/",
-  user_permission(["admin", "auther"]),
+  user_permission(["admin"]),
   async (req, res) => {
     const id = req.body.id;
     if (!id) {
       res.status(400).json({ message: "this post can not be found !!" });
     }
-    res.json(await posts.destroy(id));
+    await data.destroy(id);
+    res.json({ message: "successfully deleted !!" });
   }
 );

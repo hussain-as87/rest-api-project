@@ -2,6 +2,7 @@ import { DataTypes } from "sequelize";
 import jwt from "jsonwebtoken";
 import { _app } from "../../config.mjs";
 import { sequelize } from "../middlewares/connection.mjs";
+import { check_user_id } from "../middlewares/Permission.mjs";
 
 export class User {
   constructor() {
@@ -16,7 +17,7 @@ export class User {
           isEmail: true,
         },
         password: DataTypes.TEXT,
-        type: DataTypes.ENUM("admin", "auther", "user"),
+        type: DataTypes.ENUM("admin", "author", "user"),
         bio: DataTypes.TEXT,
         f_name: { type: DataTypes.STRING, allowNull: true },
         l_name: { type: DataTypes.STRING, allowNull: true },
@@ -28,13 +29,12 @@ export class User {
         timestamps: false,
       }
     );
-    
   }
   async login(req, res) {
     const email = req.body.email;
     const password = req.body.password;
     const user = await this.User.findOne({
-      attributes: ["name", "email", "type"],
+      attributes: ["id","name", "email", "type"],
       where: [{ email: email }, { password: password }],
     });
 
@@ -46,22 +46,28 @@ export class User {
     let user_type = user.type;
     req.session.type = null;
     req.session.type = user_type;
+    req.session.userId = null;
+    req.session.userId = user_id;
     const token = jwt.sign({ id: user_id, type: user_type }, _app.secret_key);
     res.json({
-      token
+      token,
     });
   }
 
   async index() {
     try {
-      return await this.User.findAll();
+      return await this.User.findAll({ where: [{ type: "author" }] });
     } catch (err) {
       console.log(err);
     }
   }
 
   async show(id) {
-    return await this.User.findByPk(id);
+   const author= await this.User.findByPk(id);
+     if(!author)
+     {return "not found !!"; }
+     const posts = sequelize.query(`select * from posts where author = ${id}`);
+     return await posts;
   }
 
   async create(user) {
@@ -73,14 +79,18 @@ export class User {
 
   async update(id, user) {
     const updated_user = await this.User.findByPk(id);
-    console.log(updated_user);
-    Object.keys(user).forEach((k) => {
-      updated_user[k] = user[k];
-    });
+    const user_id = check_user_id;
 
-    await updated_user.save();
-
-    return updated_user;
+    console.log("the user : " + user_id);
+    if (user_id == id) {
+      Object.keys(user).forEach((k) => {
+        updated_user[k] = user[k];
+      });
+      await updated_user.save();
+      return updated_user;
+    } else {
+      return "you are not the author !!";
+    }
   }
 
   async destroy(id) {

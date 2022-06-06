@@ -10,7 +10,9 @@ export const sequelize = new Sequelize(
         host: `${_app.connection_host}`,
         dialect: `${_app.connection_type}`
     });
-
+if (!sequelize) {
+     "DB Error !!";
+}
 
  /* const books = await sequelize.query('SELECT * FROM users');
  console.log(books); */
