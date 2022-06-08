@@ -4,6 +4,7 @@ import { validationResult, check } from "express-validator";
 import { check_user_id, user_permission } from "../middlewares/Permission.mjs";
 import { Resize } from "../middlewares/UploadFile.mjs";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 const __dirname = "D:\\node project\\course\\final-project-2\\src\\";
 const data = new Post();
 
@@ -37,25 +38,30 @@ post_route.post(
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("author").notEmpty(),
+    check("tag").isInt(),
   ],
   user_permission(["author"]),
   async (req, res) => {
-    const imagePath = path.join(__dirname, "/public/images");
-    const fileUpload = new Resize(imagePath);
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ error: errors.array() });
-      return;
+    try {
+      const imagePath = path.join(__dirname, "/public/images");
+      const fileUpload = new Resize(imagePath);
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ error: errors.array() });
+        return;
+      }
+      const post = req.body;
+      post._id = uuidv4();
+      post.author = toString(check_user_id);
+      console.log(check_user_id);
+      post.publish_date = new Date();
+      const filename = await fileUpload.save(req.body.image);
+      post.image = filename;
+      await data.create(post);
+      res.json({ message: "successfuly created !!" });
+    } catch (error) {
+      res.json({ message: error });
     }
-    const post = req.body;
-    post.id = Math.ceil(Math.random(200) * 1000000000);
-    post.author = check_user_id;
-    post.publish_date = new Date();
-    const filename = await fileUpload.save(req.body.image);
-    post.image = filename;
-    await data.create(post);
-    res.json({ message: "successfuly created !!" });
   }
 );
 
@@ -69,39 +75,39 @@ post_route.put(
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("author").notEmpty(),
+    check("tag").isInt(),
   ],
   user_permission(["author"]),
   async (req, res) => {
-    const imagePath = path.join(__dirname, "/public/images");
-    const fileUpload = new Resize(imagePath);
-    const id = req.body.id;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ error: errors.array() });
-      return;
+    try {
+      const imagePath = path.join(__dirname, "/public/images");
+      const fileUpload = new Resize(imagePath);
+      const id = req.body.id;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ error: errors.array() });
+        return;
+      }
+      const post = req.body;
+      post._id = id;
+      post.author = check_user_id;
+      post.publish_date = new Date();
+      const filename = await fileUpload.save(req.body.image);
+      post.image = filename;
+      await data.update(id, post);
+      res.json({ message: "successfully updated !!" });
+    } catch (error) {
+      res.json({ message: error });
     }
-    const post = req.body;
-    post.id = id;
-    post.author = check_user_id;
-    post.publish_date = new Date();
-    const filename = await fileUpload.save(req.body.image);
-    post.image = filename;
-    await data.update(id, post);
-    res.json({ message: "successfully updated !!" });
   }
 );
 
 //!delete
-post_route.delete(
-  "/",
-  user_permission(["admin"]),
-  async (req, res) => {
-    const id = req.body.id;
-    if (!id) {
-      res.status(400).json({ message: "this post can not be found !!" });
-    }
-    await data.destroy(id);
-    res.json({ message: "successfully deleted !!" });
+post_route.delete("/", user_permission(["admin"]), async (req, res) => {
+  const id = req.body.id;
+  if (!id) {
+    res.status(400).json({ message: "this post can not be found !!" });
   }
-);
+  await data.destroy(id);
+  res.json({ message: "successfully deleted !!" });
+});

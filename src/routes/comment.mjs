@@ -39,8 +39,8 @@ comment_route.post(
       res.status(400).json({ error: errors.array() });
       return;
     }
-    const tag = req.body;
-    res.json(await data.create(tag));
+    const comm = req.body;
+    res.json(await data.create(comm));
   }
 );
 /* 

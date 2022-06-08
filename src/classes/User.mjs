@@ -9,6 +9,10 @@ export class User {
     this.User = sequelize.define(
       "User",
       {
+        _id:{
+          type: DataTypes.STRING,
+          primaryKey: true
+      },
         name: DataTypes.STRING,
         email: {
           type: DataTypes.STRING,

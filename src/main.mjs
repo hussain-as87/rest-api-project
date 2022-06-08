@@ -2,15 +2,20 @@ import express from "express";
 import { api_route } from "./routes/app.mjs";
 import { _app } from "../config.mjs";
 import session from "cookie-session";
-import { login_route } from "./routes/User.mjs";
-import { Authorize } from "./middlewares/authorize.mjs";
-import { comment_route } from "./routes/Comment.mjs";
-import swaggerUi from "swagger-ui-express";
-import swagDocs from "../swagger.json" assert { type: "json" };
+import path from "path";
+import expressLayouts from "express-ejs-layouts";
+import ejs from "ejs";
+import { Post } from "./classes/Post.mjs";
+import {fileURLToPath} from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+app.use("/public",express.static(__dirname+'/public'));
+app.use('/css', express.static(__dirname + '/public/css'))
+app.use('/images', express.static(__dirname + '/public/images'))
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     resave: true,
@@ -18,11 +23,20 @@ app.use(
     secret: _app.secret_key,
   })
 );
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swagDocs));
 
-app.use("/api/comments", comment_route);
-app.use("/api/auth", login_route);
-app.use("/api", [Authorize, api_route]);
+app.use(expressLayouts);
+app.set("layout", path.resolve("src/views/layouts/app"));
+app.set("view engine", "ejs");
+app.set("views", path.resolve("src/views"));
+const posts = new Post();
+
+app.get("/posts", async(req, res) => {
+  res.render("index", {
+    posts: await posts.index(req.query.count, req.query.page, req.query.query),
+  });
+});
+
+app.use("/api",  api_route);
 
 app.listen(_app.port, () => {
   console.clear();

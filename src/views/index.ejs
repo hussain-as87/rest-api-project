@@ -1,0 +1,17 @@
+    <div class="container col-5">
+      <div class="card-columns py-4">
+        <%  posts.forEach(function(post){ %>
+          <div class="card py-4">
+            <img
+              class="card-img-top"
+              src="./public/images/<%= post.image %>"
+              alt="<%= post.image %> "
+            />
+            <div class="card-body">
+              <h4 class="card-title"><%= post.title %></h4>
+              <p class="card-text"><%= post.publish_date %> </p>
+            </div>
+          </div>
+        <%});%>
+      </div>
+    </div>

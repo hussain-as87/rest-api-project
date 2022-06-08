@@ -1,6 +1,7 @@
 import express from "express";
 import { check, validationResult } from "express-validator";
 import { User } from "../classes/User.mjs";
+import {v4 as uuidv4} from 'uuid';
 import { user_permission } from "../middlewares/Permission.mjs";
 
 const data = new User();
@@ -51,7 +52,7 @@ user_route.post(
       return;
     }
     const usr = req.body;
-    usr.id = Math.ceil(Math.random(200) * 1000000000);
+    usr._id = uuidv4();
     res.json(await data.create(usr));
   }
 );
@@ -75,6 +76,7 @@ user_route.put(
       return;
     }
     const post = req.body;
+    post._id = id ;
     res.json(await data.update(id, post));
   }
 );
