@@ -3,6 +3,8 @@ import sharp from 'sharp';
 import {v4 as uuidv4} from 'uuid';
 import path from 'path';
 
+
+
 export class Resize {
     constructor(folder) {
       this.folder = folder;
@@ -12,7 +14,7 @@ export class Resize {
       const filepath = this.filepath(filename);
   
       await sharp(buffer)
-        .resize(300, 300, {
+        .resize(536, 804, {
           fit: sharp.fit.inside,
           withoutEnlargement: true
         })

@@ -7,12 +7,16 @@ export class Post {
     this.Post = sequelize.define(
       "Post",
       {
+        _id:{
+          type: DataTypes.STRING,
+          primaryKey: true
+      },
         title: DataTypes.STRING,
         content: DataTypes.TEXT,
         image: DataTypes.TEXT,
         status: DataTypes.ENUM("draft", "published"),
         publish_date: new Date().getDate(),
-        author: DataTypes.INTEGER,
+        author: DataTypes.STRING,
         tag: DataTypes.INTEGER,
       },
       {
