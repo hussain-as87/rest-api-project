@@ -1,23 +1,23 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../middlewares/connection.mjs";
 import { check_user } from "../middlewares/Permission.mjs";
-
+import { paginate } from "../middlewares/paginations.mjs";
 export class Post {
   constructor() {
     this.Post = sequelize.define(
       "Post",
       {
-        _id:{
+        _id: {
           type: DataTypes.STRING,
-          primaryKey: true
-      },
+          primaryKey: true,
+        },
         title: DataTypes.STRING,
         content: DataTypes.TEXT,
         image: DataTypes.TEXT,
         status: DataTypes.ENUM("draft", "published"),
         publish_date: new Date().getDate(),
         author: DataTypes.STRING,
-        tag: DataTypes.INTEGER,
+        tag: DataTypes.STRING,
       },
       {
         tableName: "posts",
@@ -26,25 +26,33 @@ export class Post {
     );
   }
 
-  async index(limit, page, query) {
+  async index(limit, page, query, tag, excerpt) {
     try {
       let p;
       if (check_user == "admin") {
-        if (query == undefined) {
-          p = this.Post.findAll();
-        } else {
+        if (query != undefined) {
           p = sequelize.query(
             `select * from posts where title like '%${query}%' or content like '%${query}%' `
           );
+        } else if (tag) {
+          p = this.Post.findAll({
+            where: [{ tag: tag }],
+          });
+        } else {
+          p = this.Post.findAll();
         }
         return page || limit ? await paginate(p, limit, page) : p;
       } else {
-        if (query == undefined) {
-          p = this.Post.findAll({ where: [{ status: "published" }] });
-        } else {
+        if (query != undefined) {
           p = sequelize.query(
-            `select * from posts where title like '%${query}%' or content like '%${query}%'`
+            `select * from posts where title like '%${query}%' or content like '%${query}%' and status = 'published'`
           );
+        } else if (tag) {
+          p = this.Post.findAll({
+            where: [{ tag: tag }],
+          });
+        } else {
+          p = this.Post.findAll({ where: [{ status: "published" }] });
         }
         return page || limit ? await paginate(p, limit, page) : p;
       }
@@ -54,9 +62,13 @@ export class Post {
   }
 
   async show(id) {
-    const post =  this.Post.findByPk(id);
+    const post = this.Post.findByPk(id);
+    return await post;
+  }
+  async showById(id) {
+    const post = this.Post.findByPk(id);
     if (!post) {
-      return {message:"not found !!"}
+      return { message: "not found !!" };
     }
     const comments = sequelize.query(
       `select * from comments where post_id = ${id}`
@@ -89,13 +101,4 @@ export class Post {
       },
     });
   }
-}
-
-//!pagination
-async function paginate(array, page_limit, page_number) {
-  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
-  return (await array).slice(
-    (page_number - 1) * page_limit,
-    page_number * page_limit
-  );
 }

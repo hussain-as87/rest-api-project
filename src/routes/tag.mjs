@@ -1,5 +1,5 @@
 import express from "express";
-import { Tag } from "../classes/Tag.mjs";
+import { Tag } from "../models/Tag.mjs";
 import { validationResult, check } from "express-validator";
 import { user_permission } from "../middlewares/Permission.mjs";
 
@@ -7,13 +7,12 @@ const data = new Tag();
 
 export const tag_route = express.Router();
 
-//!fetch all 
+//!fetch all
 tag_route.get("/", user_permission(["admin"]), async (req, res) => {
-  
   res.json(await data.index());
 });
 
-//!find one 
+//!find one
 tag_route.get("/:id", async (req, res) => {
   const id = req.params.id;
   const tag = await data.show(id);
@@ -29,14 +28,11 @@ tag_route.get("/:id/posts", async (req, res) => {
   res.json(await data.show(id));
 });
 
-//!create  
+//!create
 tag_route.post(
   "/",
-  [
-    check("name").notEmpty().isString(),
-    check("user_id").notEmpty(),
-  ],
-  user_permission(["admin","author"]),
+  [check("name").notEmpty().isString(), check("user_id").notEmpty()],
+  user_permission(["admin", "author"]),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -44,12 +40,11 @@ tag_route.post(
       return;
     }
     const tag = req.body;
-
-    res.json(await data.create(tag));
+    res.json(data.create(tag));
   }
 );
 
-//!update 
+//!update
 tag_route.put(
   "/",
   [
@@ -70,11 +65,12 @@ tag_route.put(
   }
 );
 
-//!delete 
+//!delete
 tag_route.delete("/", user_permission(["admin"]), async (req, res) => {
   const id = req.body.id;
   if (!id) {
     res.status(400).json({ message: "this post can not be found !!" });
   }
-  res.json(await data.destroy(id));
+  await data.destroy(id);
+  res.json({ message: "deleted successfully!!" });
 });

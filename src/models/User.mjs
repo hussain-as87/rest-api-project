@@ -3,16 +3,17 @@ import jwt from "jsonwebtoken";
 import { _app } from "../../config.mjs";
 import { sequelize } from "../middlewares/connection.mjs";
 import { check_user_id } from "../middlewares/Permission.mjs";
+import bcrypt from "bcrypt";
 
 export class User {
   constructor() {
     this.User = sequelize.define(
       "User",
       {
-        _id:{
+        _id: {
           type: DataTypes.STRING,
-          primaryKey: true
-      },
+          primaryKey: true,
+        },
         name: DataTypes.STRING,
         email: {
           type: DataTypes.STRING,
@@ -37,16 +38,13 @@ export class User {
   async login(req, res) {
     const email = req.body.email;
     const password = req.body.password;
-    const user = await this.User.findOne({
-      attributes: ["id","name", "email", "type"],
-      where: [{ email: email }, { password: password }],
-    });
-
-    if (!user) {
-      res.status(400).json({ message: "user undefined !!" });
+    const user = await this.User.findOne({ where: [{ email: email }] });
+    const check_password = await bcrypt.compare(password, user.password);
+    if (!check_password) {
+      res.status(400).json({ message: "check your email or password !!" });
       return;
     }
-    let user_id = user.id;
+    let user_id = user._id;
     let user_type = user.type;
     req.session.type = null;
     req.session.type = user_type;
@@ -60,24 +58,24 @@ export class User {
 
   async index() {
     try {
-      return await this.User.findAll({ where: [{ type: "author" }] });
+      return await this.User.findAll();
     } catch (err) {
       console.log(err);
     }
   }
 
   async show(id) {
-   const author= await this.User.findByPk(id);
-     if(!author)
-     {return "not found !!"; }
-     const posts = sequelize.query(`select * from posts where author = ${id}`);
-     return await posts;
+    const author = await this.User.findByPk(id);
+    if (!author) {
+      return "not found !!";
+    }
+    const posts = sequelize.query(`select * from posts where author = ${id}`);
+    return await posts;
   }
 
   async create(user) {
     const new_user = this.User.build(user);
     await new_user.save();
-
     return new_user;
   }
 
