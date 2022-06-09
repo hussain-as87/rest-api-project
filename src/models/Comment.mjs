@@ -33,7 +33,6 @@ export class Comment {
   async create(commet) {
     const new_commet = this.Comment.build(commet);
     await new_commet.save();
-
     return new_commet;
   }
 /* 

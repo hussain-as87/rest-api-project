@@ -1,10 +1,12 @@
 import express from "express";
 import { check, validationResult } from "express-validator";
-import { User } from "../classes/User.mjs";
-import {v4 as uuidv4} from 'uuid';
+import { User } from "../models/User.mjs";
+import { v4 as uuidv4 } from "uuid";
 import { user_permission } from "../middlewares/Permission.mjs";
-
+import bcrypt from "bcrypt";
 const data = new User();
+
+const salt = await bcrypt.genSalt();
 
 export const user_route = express.Router();
 export const login_route = express.Router();
@@ -34,7 +36,6 @@ user_route.get("/:id/posts", async (req, res) => {
   res.json(user);
 });
 
-
 //!create
 user_route.post(
   "/",
@@ -53,6 +54,7 @@ user_route.post(
     }
     const usr = req.body;
     usr._id = uuidv4();
+    usr.password = await bcrypt.hash(req.body.password, salt);
     res.json(await data.create(usr));
   }
 );
@@ -75,9 +77,10 @@ user_route.put(
       res.status(400).json({ error: errors.array() });
       return;
     }
-    const post = req.body;
-    post._id = id ;
-    res.json(await data.update(id, post));
+    const usr = req.body;
+    usr._id = id;
+    usr.password = await bcrypt.hash(req.body.password, salt);
+    res.json(await data.update(id, usr));
   }
 );
 
@@ -87,5 +90,6 @@ user_route.delete("/", user_permission(["admin"]), async (req, res) => {
   if (!id) {
     res.status(400).json({ message: "this post can not be found !!" });
   }
-  res.json(await data.destroy(id));
+  await data.destroy(id);
+  res.json({ message: "deleted successfully!!" });
 });

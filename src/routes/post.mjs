@@ -1,5 +1,5 @@
 import express from "express";
-import { Post } from "../classes/Post.mjs";
+import { Post } from "../models/Post.mjs";
 import { validationResult, check } from "express-validator";
 import { check_user_id, user_permission } from "../middlewares/Permission.mjs";
 import { Resize } from "../middlewares/UploadFile.mjs";
@@ -18,14 +18,22 @@ post_route.get(
     let query = req.query.query;
     let count = req.query.count;
     let page = req.query.page;
-    res.json(await data.index(count, page, query));
+    let tag = req.query.tag;
+    const posts = await data.index(count, page, query,tag);
+    res.json(posts);
   }
 );
 
 //!find one
+post_route.get("/:id", async (req, res) => {
+  const id = req.params.id;
+  res.json(await data.show(id));
+});
+
+//!find one
 post_route.get("/:id/comments", async (req, res) => {
   const id = req.params.id;
-  const p = await data.show(id);
+  const p = await data.showById(id);
   res.json(p);
 });
 
@@ -52,13 +60,11 @@ post_route.post(
       }
       const post = req.body;
       post._id = uuidv4();
-      post.author = toString(check_user_id);
-      console.log(check_user_id);
+      post.author = check_user_id;
       post.publish_date = new Date();
       const filename = await fileUpload.save(req.body.image);
       post.image = filename;
-      await data.create(post);
-      res.json({ message: "successfuly created !!" });
+      res.json(await data.create(post));
     } catch (error) {
       res.json({ message: error });
     }
@@ -69,20 +75,20 @@ post_route.post(
 post_route.put(
   "/",
   [
-    check("id").notEmpty(),
+    check("_id").notEmpty(),
     check("title").notEmpty().isString(),
     check("content").notEmpty().isString(),
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("tag").isInt(),
+    check("tag").isInt(), 
   ],
   user_permission(["author"]),
   async (req, res) => {
     try {
       const imagePath = path.join(__dirname, "/public/images");
       const fileUpload = new Resize(imagePath);
-      const id = req.body.id;
+      const id = req.body._id;
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(400).json({ error: errors.array() });
@@ -94,8 +100,7 @@ post_route.put(
       post.publish_date = new Date();
       const filename = await fileUpload.save(req.body.image);
       post.image = filename;
-      await data.update(id, post);
-      res.json({ message: "successfully updated !!" });
+      res.json(await data.update(id, post));
     } catch (error) {
       res.json({ message: error });
     }
@@ -108,6 +113,6 @@ post_route.delete("/", user_permission(["admin"]), async (req, res) => {
   if (!id) {
     res.status(400).json({ message: "this post can not be found !!" });
   }
-  await data.destroy(id);
-  res.json({ message: "successfully deleted !!" });
+  await data.destroy(id)
+  res.json({ message: "deleted successfully!!" });
 });

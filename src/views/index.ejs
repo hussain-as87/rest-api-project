@@ -1,17 +1,47 @@
-    <div class="container col-5">
-      <div class="card-columns py-4">
-        <%  posts.forEach(function(post){ %>
-          <div class="card py-4">
-            <img
-              class="card-img-top"
-              src="./public/images/<%= post.image %>"
-              alt="<%= post.image %> "
-            />
-            <div class="card-body">
-              <h4 class="card-title"><%= post.title %></h4>
-              <p class="card-text"><%= post.publish_date %> </p>
+<div class="s-content">
+
+  <div class="masonry-wrap">
+
+    <div class="masonry">
+
+      <div class="grid-sizer"></div>
+      <% posts.forEach(function(post){ %>
+
+        <article class="masonry__brick entry format-standard animate-this">
+
+          <div class="entry__thumb">
+            <a href="#" class="entry__thumb-link">
+              <img src="./public/images/<%= post.image %>" srcset="./public/images/<%= post.image %>" alt="">
+            </a>
+          </div>
+
+          <div class="entry__text">
+            <div class="entry__header">
+
+              <h2 class="entry__title"><a href="#">
+                  <%= post.title %>
+                </a></h2>
+              <div class="entry__meta">
+                <span class="entry__meta-date">
+                  <a href="#">
+                    <%= post.publish_date %>
+                  </a>
+                </span>
+              </div>
+
+            </div>
+            <div class="entry__excerpt">
+              <p>
+                <%= post.content%>
+              </p>
             </div>
           </div>
+
+        </article> <!-- end article -->
         <%});%>
-      </div>
-    </div>
+
+    </div> <!-- end masonry -->
+
+  </div> <!-- end masonry-wrap -->
+
+</div> <!-- end s-content -->

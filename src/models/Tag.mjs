@@ -6,7 +6,10 @@ export class Tag {
     this.Tag = sequelize.define(
       "Tag",
       {
-        name: DataTypes.STRING,
+        name:{
+          type: DataTypes.STRING,
+          primaryKey: true,
+        },
       },
       {
         tableName: "tags",

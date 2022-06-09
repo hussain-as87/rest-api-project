@@ -1,5 +1,5 @@
 import express from "express";
-import { Comment } from "../classes/Comment.mjs";
+import { Comment } from "../models/Comment.mjs";
 import { validationResult, check } from "express-validator";
 import { user_permission } from "../middlewares/Permission.mjs";
 import { Authorize } from "../middlewares/authorize.mjs";
@@ -76,8 +76,8 @@ comment_route.delete(
     const com = sequelize.query(`select * from comments where id = ${id}`);
     if (com == undefined) {
       res.status(400).json({ message: "this post can not be found !!" });
-    }
-    await data.destroy(id);
-    res.json({ message: "successfully deleted !!" });
+    } 
+    await data.destroy(id)
+    res.json({ message: "deleted successfully!!" });
   }
 );
