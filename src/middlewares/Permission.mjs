@@ -1,5 +1,5 @@
-export let check_user = null ;
-export let check_user_id = null ;
+export let check_user;
+export let check_user_id;
 export const user_permission = (per) => {
   return (req, res, next) => {
      check_user = req.session.type;

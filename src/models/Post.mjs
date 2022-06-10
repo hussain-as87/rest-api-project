@@ -26,9 +26,10 @@ export class Post {
     );
   }
 
-  async index(limit, page, query, tag, excerpt) {
+  async index(limit, page, query, tag, fields, excerpt) {
     try {
       let p;
+      //just admin
       if (check_user == "admin") {
         if (query != undefined) {
           p = sequelize.query(
@@ -38,18 +39,39 @@ export class Post {
           p = this.Post.findAll({
             where: [{ tag: tag }],
           });
+        } else if (excerpt) {
+          p = sequelize.query(`select * ,
+          case 
+          when length(content) > ${excerpt} then substring(content, 1, ${excerpt}) 
+          else content
+          end as 'content' from posts`);
+        } else if (fields) {
+          p = this.Post.findAll({ attributes: fields });
         } else {
           p = this.Post.findAll();
         }
         return page || limit ? await paginate(p, limit, page) : p;
-      } else {
+      }
+      //if auther or user
+      else {
         if (query != undefined) {
           p = sequelize.query(
             `select * from posts where title like '%${query}%' or content like '%${query}%' and status = 'published'`
           );
         } else if (tag) {
           p = this.Post.findAll({
-            where: [{ tag: tag }],
+            where: [{ tag: tag, status: "published" }],
+          });
+        } else if (excerpt) {
+          p = sequelize.query(`select * ,
+          case 
+          when length(content) > ${excerpt} then substring(content, 1, ${excerpt}) 
+          else content
+          end as 'content' from posts where status = 'published'`);
+        } else if (fields) {
+          p = this.Post.findAll({
+            attributes: fields,
+            where: [{ status: "published" }],
           });
         } else {
           p = this.Post.findAll({ where: [{ status: "published" }] });
