@@ -36,24 +36,28 @@ export class User {
     );
   }
   async login(req, res) {
-    const email = req.body.email;
-    const password = req.body.password;
-    const user = await this.User.findOne({ where: [{ email: email }] });
-    const check_password = await bcrypt.compare(password, user.password);
-    if (!check_password) {
-      res.status(400).json({ message: "check your email or password !!" });
-      return;
+    try {
+      const email = req.body.email;
+      const password = req.body.password;
+      const user = await this.User.findOne({ where: [{ email: email }] });
+      const check_password = await bcrypt.compare(password, user.password);
+      if (!check_password) {
+        res.status(400).json({ message: "check your email or password !!" });
+        return;
+      }
+      let user_id = user._id;
+      let user_type = user.type;
+      req.session.type = null;
+      req.session.type = user_type;
+      req.session.userId = null;
+      req.session.userId = user_id;
+      const token = jwt.sign({ id: user_id, type: user_type }, _app.secret_key);
+      res.json({
+        token,
+      });
+    } catch (error) {
+      console.log(error);
     }
-    let user_id = user._id;
-    let user_type = user.type;
-    req.session.type = null;
-    req.session.type = user_type;
-    req.session.userId = null;
-    req.session.userId = user_id;
-    const token = jwt.sign({ id: user_id, type: user_type }, _app.secret_key);
-    res.json({
-      token,
-    });
   }
 
   async index() {

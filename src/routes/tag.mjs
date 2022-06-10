@@ -40,7 +40,7 @@ tag_route.post(
       return;
     }
     const tag = req.body;
-    res.json(data.create(tag));
+    res.json(await data.create(tag));
   }
 );
 

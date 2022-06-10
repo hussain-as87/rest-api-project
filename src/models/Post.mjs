@@ -74,7 +74,7 @@ export class Post {
             where: [{ status: "published" }],
           });
         } else {
-          p = this.Post.findAll({where: [{ status: "published" }]});
+          p = this.Post.findAll({ where: [{ status: "published" }] });
         }
         return page || limit ? await paginate(p, limit, page) : p;
       }

@@ -1,18 +1,18 @@
-import { Sequelize, DataTypes, Op } from 'sequelize';
-import { _app } from '../../config.mjs';
-
+import { Sequelize, DataTypes, Op } from "sequelize";
+import { _app } from "../../config.mjs";
 
 export const sequelize = new Sequelize(
-    _app.db_name,
-    _app.connection_user,
-    _app.connection_password,
-    {
-        host: `${_app.connection_host}`,
-        dialect: `${_app.connection_type}`
-    });
+  _app.db_name,
+  _app.connection_user,
+  _app.connection_password,
+  {
+    host: `${_app.connection_host}`,
+    dialect: `${_app.connection_type}`,
+  }
+);
 if (!sequelize) {
-     "DB Error !!";
+  ("DB Error !!");
 }
-
- /* const books = await sequelize.query('SELECT * FROM users');
+//!for test connection
+/* const books = await sequelize.query('SELECT * FROM users');
  console.log(books); */

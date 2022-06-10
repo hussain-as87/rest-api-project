@@ -7,7 +7,7 @@ export const user_permission = (per) => {
     if (per.includes(check_user)) {
       next();
     } else {
-      return res.status(400).json({ message: "you dont have permission !!" });
+      return res.status(400).json({ message: "sorry...you dont have a permission !!" });
     }
   };
 };
