@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use("/public", express.static(__dirname + "/public"));
+app.use("/images", express.static(__dirname + "/public/images"));
 app.use(express.json());
 app.use(
   session({
@@ -49,6 +50,24 @@ fetch("/post")
     console.log(err);
   });
 
+app.get("/posts/:id", async (req, res) => {
+  const id = req.params.id;
+  res.render("single-post", {
+    post: await posts.show(id),
+    title: "posts-single",
+  });
+});
+fetch("/posts/:id")
+  .then((req, res) => {
+    const id = req.params.id;
+    res.render("single-post", {
+      post: posts.show(id),
+      title: "posts-single",
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 app.use("/api", api_route);
 
 app.listen(_app.port, () => {
