@@ -5,6 +5,7 @@ import { check_user_id, user_permission } from "../middlewares/Permission.mjs";
 import { Resize } from "../middlewares/UploadFile.mjs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import { _app } from "../../config.mjs";
 const __dirname = "D:\\node project\\course\\final-project-2\\src\\";
 const data = new Post();
 
@@ -20,6 +21,7 @@ post_route.get(
     let count = req.query.count;
     let page = req.query.page;
     let _tag = req.query.tag;
+    let excerpt = req.query.excerpt;
     if (_tag) {
       tag = _tag.toString().split(",");
     }
@@ -27,9 +29,14 @@ post_route.get(
     if (_fields) {
       fields = _fields.toString().split(",");
     }
-    let excerpt = req.query.excerpt;
     const posts = await data.index(count, page, query, tag, fields, excerpt);
-    res.json(posts);
+    let all_post = posts.map((p) => {
+      return {
+        "post":p,
+        "read more ..": `http://${_app.connection_host}:${_app.port}/posts/${p._id}`,
+      };
+    });
+    res.json(all_post);
   }
 );
 
