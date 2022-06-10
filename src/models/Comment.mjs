@@ -35,7 +35,7 @@ export class Comment {
     await new_commet.save();
     return new_commet;
   }
-/* 
+  /* 
   async update(id, comment) {
     const update_commet = await this.Comment.findByPk(id);
     Object.keys(comment).forEach((k) => {
@@ -49,7 +49,7 @@ export class Comment {
  */
   async destroy(id) {
     if (!id) {
-      return {message:"not found !!"}
+      return { message: "not found !!" };
     }
     await this.Comment.destroy({
       where: {

@@ -26,12 +26,12 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("src/views"));
 const posts = new Post();
 
- app.get("/posts", async (req, res) => {
+app.get("/posts", async (req, res) => {
   res.render("index", {
     posts: await posts.index(req.query.count, req.query.page, req.query.query),
     title: "posts",
   });
-}); 
+});
 
 fetch("/post")
   .then((req, res) => {

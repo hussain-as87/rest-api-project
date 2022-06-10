@@ -76,8 +76,8 @@ comment_route.delete(
     const com = sequelize.query(`select * from comments where id = ${id}`);
     if (com == undefined) {
       res.status(400).json({ message: "this post can not be found !!" });
-    } 
-    await data.destroy(id)
+    }
+    await data.destroy(id);
     res.json({ message: "deleted successfully!!" });
   }
 );

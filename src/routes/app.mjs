@@ -9,10 +9,9 @@ import swagDocs from "./../../swagger.json" assert { type: "json" };
 export const api_route = express.Router();
 
 //auth
-api_route.use("/authors", [Authorize,user_route]);
-api_route.use("/tags", [Authorize,tag_route]);
-api_route.use("/posts", [Authorize,post_route]);
-
+api_route.use("/authors", [Authorize, user_route]);
+api_route.use("/tags", [Authorize, tag_route]);
+api_route.use("/posts", [Authorize, post_route]);
 
 //no auth
 api_route.use("/docs", swaggerUi.serve, swaggerUi.setup(swagDocs));

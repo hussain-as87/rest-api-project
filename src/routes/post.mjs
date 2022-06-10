@@ -16,23 +16,26 @@ post_route.get(
   "/",
   user_permission(["admin", "author", "user"]),
   async (req, res) => {
-    let fields, tag;
-    let query = req.query.query;
-    let count = req.query.count;
-    let page = req.query.page;
-    let _tag = req.query.tag;
-    let excerpt = req.query.excerpt;
+    let fields,
+      tag,
+      query = req.query.query,
+      limit = req.query.count,
+      page = req.query.page,
+      _tag = req.query.tag,
+      _fields = req.query.fields,
+      excerpt = req.query.excerpt;
+
     if (_tag) {
       tag = _tag.toString().split(",");
     }
-    let _fields = req.query.fields;
+
     if (_fields) {
       fields = _fields.toString().split(",");
     }
-    const posts = await data.index(count, page, query, tag, fields, excerpt);
+    const posts = await data.index(limit, page, query, tag, fields, excerpt);
     let all_post = posts.map((p) => {
       return {
-        "post":p,
+        post: p,
         "read more ..": `http://${_app.connection_host}:${_app.port}/posts/${p._id}`,
       };
     });
