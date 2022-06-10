@@ -15,11 +15,17 @@ post_route.get(
   "/",
   user_permission(["admin", "author", "user"]),
   async (req, res) => {
+    let fields;
     let query = req.query.query;
     let count = req.query.count;
     let page = req.query.page;
     let tag = req.query.tag;
-    const posts = await data.index(count, page, query,tag);
+    let _fields = req.query.fields;
+    if (_fields) {
+       fields = _fields.toString().split(",");
+    }
+    let excerpt = req.query.excerpt;
+    const posts = await data.index(count, page, query, tag, fields, excerpt);
     res.json(posts);
   }
 );
@@ -81,7 +87,7 @@ post_route.put(
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("tag").isInt(), 
+    check("tag").isInt(),
   ],
   user_permission(["author"]),
   async (req, res) => {
@@ -113,6 +119,6 @@ post_route.delete("/", user_permission(["admin"]), async (req, res) => {
   if (!id) {
     res.status(400).json({ message: "this post can not be found !!" });
   }
-  await data.destroy(id)
+  await data.destroy(id);
   res.json({ message: "deleted successfully!!" });
 });
