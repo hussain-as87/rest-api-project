@@ -15,14 +15,17 @@ post_route.get(
   "/",
   user_permission(["admin", "author", "user"]),
   async (req, res) => {
-    let fields;
+    let fields, tag;
     let query = req.query.query;
     let count = req.query.count;
     let page = req.query.page;
-    let tag = req.query.tag;
+    let _tag = req.query.tag;
+    if (_tag) {
+      tag = _tag.toString().split(",");
+    }
     let _fields = req.query.fields;
     if (_fields) {
-       fields = _fields.toString().split(",");
+      fields = _fields.toString().split(",");
     }
     let excerpt = req.query.excerpt;
     const posts = await data.index(count, page, query, tag, fields, excerpt);
