@@ -6,11 +6,10 @@ import { Resize } from "../middlewares/UploadFile.mjs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { _app } from "../../config.mjs";
-const __dirname = "D:\\node project\\course\\final-project-2\\src\\";
+import { __dirname } from "../main.mjs";
 const data = new Post();
 
 export const post_route = express.Router();
-
 //!fetch all
 post_route.get(
   "/",
@@ -60,12 +59,13 @@ post_route.get("/:id/comments", async (req, res) => {
 post_route.post(
   "/",
   [
+    check("_id").notEmpty(),
     check("title").notEmpty().isString(),
     check("content").notEmpty().isString(),
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("tag").isInt(),
+    check("tag").isString(),
   ],
   user_permission(["author"]),
   async (req, res) => {
@@ -100,7 +100,7 @@ post_route.put(
     check("image")
       .matches(/.*\.(gif|jpe?g|bmp|png)$/gim)
       .notEmpty(),
-    check("tag").isInt(),
+    check("tag").isString(),
   ],
   user_permission(["author"]),
   async (req, res) => {

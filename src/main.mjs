@@ -8,7 +8,7 @@ import ejs from "ejs";
 import { Post } from "./models/Post.mjs";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+export const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use("/public", express.static(__dirname + "/public"));
