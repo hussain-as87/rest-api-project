@@ -130,7 +130,7 @@ post_route.put(
 post_route.delete("/", user_permission(["admin"]), async (req, res) => {
   const id = req.body.id;
   if (!id) {
-    res.status(400).json({ message: "this post can not be found !!" });
+    res.status(400).json({ message: "can not found !!" });
   }
   await data.destroy(id);
   res.json({ message: "deleted successfully!!" });
