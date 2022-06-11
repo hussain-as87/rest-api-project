@@ -93,7 +93,7 @@ export class Post {
       return { message: "not found !!" };
     }
     const comments = sequelize.query(
-      `select * from comments where post_id = ${id}`
+      `select * from comments where post_id = '${id}'`
     );
     return await comments;
   }
