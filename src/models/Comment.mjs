@@ -9,7 +9,7 @@ export class Comment {
         name: DataTypes.STRING,
         email: DataTypes.STRING,
         comment: DataTypes.TEXT,
-        post_id: DataTypes.INTEGER,
+        post_id: DataTypes.STRING,
       },
       {
         tableName: "comments",
